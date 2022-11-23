@@ -1,44 +1,24 @@
 //create the server
-//Collect data from the client (android app)
+const coap = require('coap') 
+const server = coap.createServer()
 
-const http = require('http');
 const hostname = '127.0.0.1';
-const port = 3000;
-const fs=require('fs');
-const StringDecoder=require('string_decoder').StringDecoder;
-
-fs.readFile(__dirname+'smya dyal l file mnin hanakhed data','utf-8',function(err,data){
-  
-  const server = http.createServer((req, res) => {
-    let buffer='';
-    let decoder=new StringDecoder('uft-8');
-    const readFile=fs.createReadStream('');
-    readFile.pipe(res);
+const port = 5684;
 
 
-    req.on('data',function(){
-      buffer+=decoder.write(data)
-    })
-
-    req.on('end',function(data){
-      buffer+=decoder.end();
-      console.log(buffer);
-    })
-    
-
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end(data);
-  });
-  
-  server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-  });
-  
+server.on('request', (req, res) => {
+    res.end('Hello ' + req.url.split('/')[1] + '\n')
 })
 
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
 
-//Connect the server to the database
+
+
+//Collect data from the client (android app)
+
+//Connect to database
 const {createPool} = require('mysql')
 
 const pool = createPool({
@@ -47,15 +27,7 @@ const pool = createPool({
   password:'kaoutarpw',
   connectionLimit: 10
 })
-
-
-/*pool.query('Select * from smya d al table',(err,res,fields)=>{
-  if(err){
-    return console.log(err);
-  }
-  return console.log(res);
-})
-module.exports=pool;*/
+module.exports=pool;
 
 
 //store data into our database
@@ -98,3 +70,5 @@ app.post("/api", (request, response) => {
   database.insert(data);
   response.json(data);
 });
+
+//envoi de mail 
