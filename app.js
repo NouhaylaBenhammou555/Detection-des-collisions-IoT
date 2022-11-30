@@ -1,22 +1,23 @@
-//create the server
-const coap = require('coap') 
-const server = coap.createServer()
+var coap        = require('coap')
+  , server      = coap.createServer()
 
-const hostname = '127.0.0.1';
-const port = 5684;
-
-
-server.on('request', (req, res) => {
-    res.end('Hello ' + req.url.split('/')[1] + '\n')
+server.on('request', function(req, res) {
+  res.end('Hello ' + req.url.split('/')[1] + '\n')
 })
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+// the default CoAP port is 5683
+server.listen(function() {
+  var req = coap.request('coap://localhost/Matteo')
 
+  /*req.on('response', function(res) {
+    res.pipe(process.stdout)
+    res.on('end', function() {
+      process.exit(0)
+    })
+  })*/
 
-
-//Collect data from the client (android app)
+  //req.end()
+})
 
 //Connect to database
 const {createPool} = require('mysql')
@@ -29,46 +30,15 @@ const pool = createPool({
 })
 module.exports=pool;
 
+console.log(pool)
 
-//store data into our database
+// check your database connection
+connection.connect(function(err) {
 
-const express = require('express');
-const Datastore = require('nedb');
+  if (err) {
+    console.log('Connexion unsuccessful!')
+      return console.error('error: ' + err.message);
+  }
 
-const app = express();
-app.listen(5684, () => console.log('listening at 5684'));
-app.use(express.static('public'));
-app.use(express.json({ limit: '1mb' }));
-
-const database = new Datastore('database.db');
-database.loadDatabase();
-
-app.post('/api', (request, response) => {
-  const data = request.body;
-  const timestamp = Date.now();
-  data.timestamp = timestamp;
-  database.insert(data);
-  response.json(data);
+  console.log('Connected to the database.');
 });
-
-//quering database
-
-app.get("/api", (request, response) => {
-  database.find({}, (err, data) => {
-    if (err) {
-      response.end();
-      return;
-    }
-    response.send(data);
-  });
-});
-
-app.post("/api", (request, response) => {
-  const data = request.body;
-  const timestamp = Date.now();
-  data.timestamp = timestamp;
-  database.insert(data);
-  response.json(data);
-});
-
-//envoi de mail 
