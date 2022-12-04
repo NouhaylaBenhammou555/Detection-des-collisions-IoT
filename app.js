@@ -1,44 +1,52 @@
-var coap        = require('coap')
-  , server      = coap.createServer()
+const coap = require('coap');
+ 
+const requestListener = (req, res)=>{
+  console.log("Request is Incoming");
+     
+  const responseData = {"ID":123,"Nom":"bekraoui","Prenom":"simo","Matricule":"L45263"}
+    
+    //endingMessage:"DATA was sent successfuly"
+  
+   
+  const jsonContent = JSON.stringify(responseData);
+  res.end(jsonContent);
+};
+ 
+const server = coap.createServer(requestListener);
+ 
+server.listen(3000,'localhost', function(){
+    console.log("Server is Listening at Port 3000!");
+});
 
-server.on('request', function(req, res) {
-  res.end('Hello ' + req.url.split('/')[1] + '\n')
-})
+const req = coap.request('coap://localhost:3000')
 
-// the default CoAP port is 5683
-server.listen(function() {
-  var req = coap.request('coap://localhost/Matteo')
 
-  /*req.on('response', function(res) {
+req.on('response', (res) => {
     res.pipe(process.stdout)
-    res.on('end', function() {
-      process.exit(0)
-    })
-  })*/
-
-  //req.end()
 })
-
-//Connect to database
-const {createPool} = require('mysql')
-
-const pool = createPool({
-  host:'localhost',
-  user:'root',
-  password:'kaoutarpw',
-  connectionLimit: 10
-})
-module.exports=pool;
-
-console.log(pool)
+req.end()
 
 // check your database connection
-connection.connect(function(err) {
+var mysql = require('mysql');
 
-  if (err) {
-    console.log('Connexion unsuccessful!')
-      return console.error('error: ' + err.message);
-  }
-
-  console.log('Connected to the database.');
+var con = mysql.createConnection({
+  host: "10.238.68.190",
+  user: "root",
+  database: "VCD"
+  
 });
+
+
+
+  con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+    var sql = "INSERT INTO Info_user (ID,Nom,Prenom,Matricule) VALUES ?";
+    var values = [
+      Info_user['ID'], Info_user['Nom'],Info_user['Prenom'],Info_user['Matricule']
+    ];
+    con.query(sql, [values], function (err, result) {
+      if (err) throw err;
+      console.log("Number of records inserted: " + result.affectedRows);
+    });
+  });
